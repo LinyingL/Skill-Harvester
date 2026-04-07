@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skill-harvester"
+version = "0.1.0"
+description = "Extract tacit IF-THEN production rules from employee workflows and compile them into SKILL.md"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+    "click>=8.1",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.50"]
+capture = [
+    "pynput>=1.7",  # global hotkey
+    "mss>=9.0",     # screenshot
+]
+dev = ["pytest>=7.0", "pytest-cov"]
+
+[project.scripts]
+skill-harvester = "skill_harvester.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

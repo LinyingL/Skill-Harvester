@@ -1,0 +1,54 @@
+# L0 — Task Catalog
+#
+# 写法约束 (见 design v2 §4.2):
+#   1. 强制动宾结构: 动词 + 具体宾语. "处理退款工单" ✓ ; "客户关系维护" ✗
+#   2. 5-15 项, 覆盖典型一天 80% 的时间 (不算 'other' 兜底)
+#   3. 必须包含 id: other 兜底项
+#   4. 写的时候对着真实痕迹 (最近一周的日历/邮件/工单), 不要凭空想
+#
+# 示范: 一个客服高级专员
+employee_id: emp_001
+employee_role: customer_service_senior
+
+tasks:
+  - id: refund_handling
+    label: 处理退款工单
+    description: 在 ERP 中审批客户提交的退款申请
+    typical_apps: [Outlook, ERP]
+    typical_keywords: [refund, 退款, Stornorichtlinie]
+
+  - id: shipping_inquiry
+    label: 回复物流查询邮件
+    description: 客户问"包裹到哪了", 查物流后回复
+    typical_apps: [Outlook, DHL Portal]
+    typical_keywords: [tracking, 物流, 包裹]
+
+  - id: complaint_triage
+    label: 给投诉工单分类升级
+    description: 看完投诉内容判断是产品/物流/客服问题, 转给对应小组
+    typical_apps: [Zendesk, Outlook]
+    typical_keywords: [complaint, 投诉, escalate]
+
+  - id: order_correction
+    label: 修改订单信息
+    description: 客户改地址/改数量/改 SKU, 在 ERP 里直接改
+    typical_apps: [ERP]
+    typical_keywords: [order, 修改, 地址]
+
+  - id: internal_coordination
+    label: 跟物流部协调异常订单
+    description: Slack 上找物流部同事讨论卡单
+    typical_apps: [Slack]
+    typical_keywords: [stuck, 异常, 卡单]
+
+  - id: weekly_report
+    label: 写周报
+    description: 周五下午整理本周关键工单数据写日报
+    typical_apps: [Excel, Outlook]
+    typical_keywords: [周报, weekly, KPI]
+
+  - id: other
+    label: 临时任务 / 以上都不是
+    description: 兜底项. 选这个会触发开放式 goal 询问.
+    typical_apps: []
+    typical_keywords: []
