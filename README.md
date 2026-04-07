@@ -2,7 +2,7 @@
 
 [English](README.md) | [Deutsch](README.de.md) | [中文](README.zh-CN.md)
 
-> **Core Credo: Humanity is an end, never merely a means. - Kant**
+## Core Credo: Humanity is an end, never merely a means. - Kant ## 
 > The design's starting point is to help people offload the cognitive burden of mundane labor. By delegating automatable implicit rules to a personal AI Agent, individuals are liberated from repetitive operations, allowing them to fully refocus their energy on creative work.
 
 ## Theoretical Foundation & Design Philosophy: What is a Skill?
