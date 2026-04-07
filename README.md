@@ -1,101 +1,107 @@
 # Skill Harvester 
 
-> **核心信条：人是行为的目的，而不是行为的手段。-康德**
-> 本系统的出发点，是帮助人们卸下枯燥劳作的认知包袱。将工作中可以通过自动化处理的隐性规则交托给个人 AI，从而让人从重复操作中解放出来，将精力彻底回归于创造性工作之上。
+[English](README.md) | [Deutsch](README.de.md) | [中文](README.zh-CN.md)
 
-## 理论基座与设计哲学：什么是 Skill？
+> **Core Credo: Humanity is an end, never merely a means. - Kant**
+> The design's starting point is to help people offload the cognitive burden of mundane labor. By delegating automatable implicit rules to a personal AI Agent, individuals are liberated from repetitive operations, allowing them to fully refocus their energy on creative work.
 
-从逻辑学和认知科学的视角来看，"Skill"（技能）指向同一个核心现象：把显式的知识，压缩成可直接调用的自动化程序。为方便理解，我们采用了费曼学习法的通俗比喻：
+## Theoretical Foundation & Design Philosophy: What is a Skill?
 
-1. **逻辑学视角（“肌肉记忆”变回“操作手册”）**
-   *专业术语*：Gilbert Ryle 区分了“命题性知识 (Knowing That)”和“程序性知识 (Knowing How)”。Skill 本质上是后者的载体。
-   *大白话理解*：**你知道如何骑自行车（这是 Knowing How 肌肉记忆），但不一定能写出一份教别人骑自行车的说明书（这是 Knowing That 知识手册）。** 很多打工人每天重复的操作就成了这种肌肉记忆，而我们要做的，就是用对话的方式把“肌肉记忆”重新抽丝剥茧成机器能看懂的“自动化规则手册”。
-2. **认知科学视角（“老司机的直觉”大解剖）**
-   *专业术语*：在 ACT-R 理论中，这就是“知识编译（Knowledge Compilation）”过程——长期的操作使规则被内化，专家往往“说不清为什么（Tacit Knowledge）”。
-   *大白话理解*：**就像刚学开车时，脑子里会想着“先踩离合再挂挡”，但老司机遇到突发情况一脚刹车，你问他为什么，他只会说“直觉”。** 在日复一日的工作中，你已经成了“老司机”，而 Skill Harvester 就是要温和地帮你打捞出这些沉默的“老司机的直觉”。
-3. **“事件记录”与“逻辑编译”的区别：为何不直接录屏？**
-   *专业术语*：传统 RPA 是“事件（Event）记录器”，而本系统生成的是“产生式（Production，即 IF-THEN 逻辑规则）”。
-   *大白话理解*：**传统录屏软件就像是一台摄像机，只拍下你“先按 A 键，再拔掉电源”，这就叫事件。一旦键盘换了位置，它就抓瞎了。而产生式是菜谱，是告诉你“如果水开了（IF 条件），就关掉火（THEN 动作）”。** 我们的本意不是“死记硬背你的动作”，而是理解你“在什么情况下决定这么做”。
-4. **摆脱剥削与数字异化（解放生产力）**
-   传统监控或 RPA 观察的是“因为系统不够智能而产生的冗余点击流”，这加剧了人的被动感。Skill Harvester 并不是在榨取员工知识来强化资本护城河。其核心机制是：打造你个人的数字副驾驶，把你身上机械枯燥的那一面提取成“认知外骨骼”留给机器，让你专注做不可替代的“大活”。
+From the perspectives of logic and cognitive science, a "Skill" points to the same core phenomenon: compressing explicit knowledge into an automated procedure that can be called directly. To make this easier to understand, we use Feynman-style analogies:
 
-## 核心设计与奥卡姆剃刀
+1. **Logical Perspective (Translating "Muscle Memory" back to an "Operations Manual")**
+   Gilbert Ryle distinguishes between "Knowing That" (propositional knowledge) and "Knowing How" (procedural knowledge). A Skill is essentially the carrier of the latter.
+   **Analogy: You know how to ride a bicycle (Knowing How/muscle memory), but you might not be able to write an instruction manual teaching someone else how to ride it (Knowing That/knowledge manual).** Many routine tasks workers repeat daily become this kind of muscle memory. Our job is to use dialogue to unravel this "muscle memory" back into an "automated rule manual" that machines can understand.
 
-人类工作流中夹杂了海量诸如鼠标抖动、切窗口之类的无意义动作。系统如何用最小的路径找到有效决策？
+2. **Cognitive Science Perspective (Dissecting the "Veteran's Intuition")**
+   In ACT-R theory, this is the "Knowledge Compilation" process—long-term practice internalizes rules, and experts often "cannot explain why" (Tacit Knowledge).
+   **Analogy: Just like when you first learn to drive, you consciously think "step on the clutch, then shift gears". But a veteran driver brakes instantly in an emergency; if you ask why, they just say "intuition".** In your day-to-day work, you've become a "veteran", and Skill Harvester gently fishes out these silent "veteran intuitions".
 
-1. **信息量 = 惊讶度（Surprisal）**
-   *大白话理解*：**就像你平时完全听不到冰箱压缩机的嗡嗡声，但如果它突然停转了，你会立刻察觉。** 那些日常平淡无奇的操作（如打开邮件、复制粘贴）属于“白噪音”，信息量接近 0，不需要记录。系统只在“发生意外”的瞬间睁开眼睛。
-2. **盯住“黄金瞬间”**
-   因为有了前面的结论，所以我们只捕捉**长停顿、取消重做 (Ctrl+Z)、频繁切窗口查资料**等发生异常波动的节点。这些就是隐性知识被迫从潜意识浮出水面的那一刻。
-3. **隐性知识外化（Cognitive Task Analysis）**
-   在那些黄金瞬间被捕捉后，系统会在你下班前自然休息的节点，轻巧地问一句反事实追问：“当时你在这里犹豫了 5 秒，你是在拿这个金额和某个特定数字做对比吗？”——只需这一句，你的神级经验就被萃取成一行代码了。
+3. **Differences Between "Event Recording" & "Logical Compilation": Why Not Just Record Screens?**
+   Traditional RPA is an "Event Recorder", while this system generates "Productions" (IF-THEN logical rules).
+   **Analogy: Traditional screen recording is like a video camera; it only captures "you pressed Key A, then unplugged the power"—these are events. If your keyboard moves, it's blind. A production, however, is a recipe: it tells you "IF the water boils (Condition), THEN turn off the heat (Action)".** Our intention isn't to "rote memorize your actions", but to understand "under what circumstances you decide to do this".
 
-## 系统五层架构
+4. **Breaking Free from Exploitation & Digital Alienation (Liberating Productivity)**
+   Traditional monitoring or RPA just observes the "redundant click stream resulting from a clumsy system", which actually exacerbates the user's passivity. Skill Harvester does not extract employee knowledge to fortify corporate moats.
+   Its core mechanism is: building your personal digital co-pilot, extracting the mechanical and tedious parts of your work into a "cognitive exoskeleton" for the machine, allowing you to focus on irreplaceable, high-value tasks.
 
-本系统由下至上包含了五层信息压缩机制，逐层提纯用户的操作（也是逐步将海量垃圾动作提纯为黄金代码的过程）：
+## Core Design and Occam's Razor
 
-1. **L0 Task Catalog (任务清单)**: 提供先验意图，个人的显性日常工作声明。 *(大白话：今天预计要干的名录)*
-2. **L1 Sparse Sensor (稀疏感知层)**: 以极低开销监听事件流。 *(大白话：不录像，只挂个听诊器听大事，比如是否切了软件)*
-3. **L2 Episode Builder (情节构建层)**: 仅在预测误差高峰处触发保存“情节”快照。 *(大白话：发现你卡住或撤销了，赶紧抓拍一张屏幕和前30秒数据)*
-4. **L3 Dialogue Engine (外化对话引擎)**: 发起反事实提问。 *(大白话：顺着刚才的抓拍，问你一两句选择题)*
-5. **L4 Production Inducer (产生式归纳层)**: 提取 IF-THEN 逻辑并解耦。 *(大白话：对比一下你昨天犹豫和今天犹豫的不同，归纳出真正的规律)*
-6. **L5 Skill Compiler (系统编译层)**: 将推理结果落地为 Agent 的 `.md` 脚本。 *(大白话：写出最终交付给机器人的操作说明)*
+Human workflows are cluttered with a massive amount of meaningless actions like mouse jitters and window switching. How does the system find effective decisions using the minimal path?
 
-详见设计文档：
-- [skill-harvester-design.md](./skill-harvester-design.md) — v1 原始设计
-- [skill-harvester-design-v2.md](./skill-harvester-design-v2.md) — **v2 修订版（推荐先读这个）**
+1. **Information = Surprisal**
+   **Analogy: Just as you normally don't hear the hum of your refrigerator compressor, but immediately notice if it suddenly stops.** Routine operations (like opening emails or copy-pasting) are "white noise" with an information value near zero, needing no recording. The system only opens its eyes at the moment an "accident" happens.
+   
+2. **Focusing on "Golden Moments"**
+   Given the above, we only capture nodes with abnormal fluctuations: **long pauses, undo actions (Ctrl+Z), frequent window switching for research**, etc. These are the moments when tacit knowledge is forced up from the subconscious.
 
-## 运行：Phase 1 MVP
+3. **Externalizing Tacit Knowledge (Cognitive Task Analysis)**
+   After capturing these golden moments, the system gently asks a counterfactual question during your natural break before clocking out: "You hesitated for 5 seconds here; were you comparing this amount to a specific number?" — With just this one sentence, your god-tier experience is extracted into a line of code.
 
-本仓库目前处于 Phase 1 闭环原型阶段。目标是**让 L3→L4→L5 这条链路能跑通一次**，完成“手动 episode 提交 -> 产生式编译”的验证。
+## Five-Layer System Architecture
 
-### 快速开始
+By capturing "golden moments", we map your actions into a 5-layer compression process:
+
+1. **L0 Task Catalog**: Provides prior intent, your explicit daily work declaration. *(Analogy: The list of things you plan to do today)*
+2. **L1 Sparse Sensor**: Monitors the event stream with extremely low overhead. *(Analogy: No video recording, just a stethoscope listening for big changes like app switching)*
+3. **L2 Episode Builder**: Triggers saving an "episode" snapshot only at prediction error peaks. *(Analogy: Notices you're stuck or hit undo, quickly snaps a screenshot and saves the last 30 seconds)*
+4. **L3 Dialogue Engine**: Initiates counterfactual questioning. *(Analogy: Following the snapshot, asks you a quick multiple-choice question)*
+5. **L4 Production Inducer**: Extracts IF-THEN logic and decouples intention from execution. *(Analogy: Compares your hesitation yesterday with today to induce the real rule)*
+6. **L5 Skill Compiler**: Translates reasoning results into an executable `.md` script for the Agent. *(Analogy: Writes the final operating manual delivered to the robot)*
+
+*(Design documents [v1](./skill-harvester-design.md) & [v2](./skill-harvester-design-v2.md) are available in Chinese)*
+
+## Running: Phase 1 MVP
+
+This repository is currently in the Phase 1 closed-loop prototype stage. The goal is to **run the L3→L4→L5 pipeline once**, completing the validation of "manual episode submission -> production compilation".
+
+### Quick Start
 
 ```bash
-# 1. 安装
+# 1. Install
 pip install -e .
 
-# 2. 准备任务清单
+# 2. Prepare Task List
 cp examples/task_list.example.yaml ~/.skill-harvester/task_list.yaml
-# 编辑 task_list.yaml，写入你的日常任务
+# Edit task_list.yaml with your daily tasks
 
-# 3. 启动 Phase 0 的"按键采集"模式
+# 3. Start Phase 0 "Keystroke Capture" mode
 skill-harvester capture
-# 在工作时按 Ctrl+Alt+M 标记一个想要自动化抛给机器的困难分支
+# While working, press Ctrl+Alt+M to mark a difficult branch you want to automate
 
-# 4. 当晚做反事实追问
+# 4. Do Counterfactual Questioning in the evening
 skill-harvester review
 
-# 5. 攒够 episode 后跑归纳
+# 5. Run induction after gathering enough episodes
 skill-harvester induce
 
-# 6. 编译成专属自动化 SKILL.md
+# 6. Compile into exclusive automated SKILL.md
 skill-harvester compile
 
-# 输出：./skills/pending/<task_id>.md
+# Output: ./skills/pending/<task_id>.md
 ```
 
-### 环境配置
+### Environment Config
 
-默认使用 mock backend 进行本地实验。如需接入真实模型：
+Defaults to a mock backend for local experiments. To use real models:
 ```bash
-export SKILL_HARVESTER_LLM=anthropic   # 或 openai / mock
+export SKILL_HARVESTER_LLM=anthropic   # or openai / mock
 export ANTHROPIC_API_KEY=...
 ```
 
-### 项目结构
+### Project Structure
 
 ```
 skill_harvester/
-├── models.py       # 数据结构：TaskCatalog, Episode, Production
-├── storage.py      # Episode 序列化与极密存储
-├── llm.py          # LLM 后端抽象
-├── capture.py      # L1/L2: 热键采集与片段构建
-├── classifier.py   # L3 step 1: Goal 语义分类
-├── dialogue.py     # L3 step 2: 交互式反事实追问
-├── inducer.py      # L4: 逻辑提纯与产生式归纳
-├── compiler.py     # L5: Markdown Skill 编译
-└── cli.py          # 命令行入口
+├── models.py       # Data structures: TaskCatalog, Episode, Production
+├── storage.py      # Episode serialization & secure storage
+├── llm.py          # LLM backend abstraction
+├── capture.py      # L1/L2: Hotkey capture & episode building
+├── classifier.py   # L3 step 1: Goal semantic classification
+├── dialogue.py     # L3 step 2: Interactive counterfactual questioning
+├── inducer.py      # L4: Logic purification & production grouping
+├── compiler.py     # L5: Markdown Skill compilation
+└── cli.py          # CLI entry point
 ```
 
-*Skill Harvester 旨在以赛博朋克深处的浪漫——让打工人打造属于自己的“自动化数字分身”，永远不必在无聊的任务里成为机械的附庸。*
+*Skill Harvester aims for the romance hidden deep within cyberpunk—letting workers forge their own "automated digital clones", so they never have to be mechanical appendages in boring tasks.*
