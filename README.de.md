@@ -2,7 +2,7 @@
 
 [English](README.md) | [Deutsch](README.de.md) | [中文](README.zh-CN.md)
 
-> **Kernphilosophie: Der Mensch ist Zweck, niemals nur Mittel. - Kant**
+## Kernphilosophie: Der Mensch ist Zweck, niemals nur Mittel. - Kant ## 
 > Der Ausgangspunkt des Systems ist es, Menschen von der kognitiven Last monotoner Arbeit zu befreien. Indem automatisierbare, implizite Regeln an einen Agenten übergeben werden, wird der Mensch von repetitiven Abläufen befreit, um sich voll und ganz auf kreative Tätigkeiten konzentrieren zu können.
 
 ## Theoretisches Fundament & Designphilosophie: Was ist ein "Skill"?
