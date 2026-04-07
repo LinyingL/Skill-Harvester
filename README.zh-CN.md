@@ -100,5 +100,3 @@ skill_harvester/
 ├── compiler.py     # L5: Markdown Skill 编译
 └── cli.py          # 命令行入口
 ```
-
-*Skill Harvester 旨在以赛博朋克深处的浪漫——让打工人打造属于自己的“自动化数字分身”，永远不必在无聊的任务里成为机械的附庸。*
