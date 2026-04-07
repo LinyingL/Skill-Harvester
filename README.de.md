@@ -92,5 +92,3 @@ skill_harvester/
 ├── compiler.py     # L5
 └── cli.py          # CLI
 ```
-
-*Skill Harvester zielt auf die Romantik tief im Cyberpunk ab—Arbeiter schmieden ihre eigenen „automatisierten digitalen Klone“, um nie ein mechanisches Anhängsel langweiliger Aufgaben zu sein.*
