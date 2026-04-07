@@ -103,5 +103,3 @@ skill_harvester/
 ├── compiler.py     # L5: Markdown Skill compilation
 └── cli.py          # CLI entry point
 ```
-
-*Skill Harvester aims for the romance hidden deep within cyberpunk—letting workers forge their own "automated digital clones", so they never have to be mechanical appendages in boring tasks.*
