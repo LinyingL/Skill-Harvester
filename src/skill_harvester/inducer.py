@@ -16,6 +16,8 @@ from typing import Iterable
 
 from .llm import LLMBackend
 from .models import (
+    Conditions,
+    DecisionCondition,
     Episode,
     Production,
     ProductionExecution,
@@ -110,10 +112,25 @@ def induce_for_task(
     for i, p in enumerate(raw):
         intent_raw = p.get("intent", {}) or {}
         exec_raw = p.get("execution", {}) or {}
+        # v4.1 transitional adapter: the LLM prompt still emits a flat list of
+        # condition strings. We park them in Conditions.decision as declared
+        # text. Trigger stays empty until inducer is rewritten for §4.5 schema
+        # (path 3 work). consistency_checker / compiler must tolerate empty
+        # trigger during this transitional state.
+        src_eps = [str(s) for s in (p.get("source_episode_ids") or [])]
+        decision_conditions = [
+            DecisionCondition(
+                text=str(c),
+                observable=False,
+                kind="declared",
+                source_dialogue=src_eps[0] if src_eps else None,
+            )
+            for c in (intent_raw.get("conditions") or [])
+        ]
         try:
             intent = ProductionIntent(
                 goal=str(intent_raw.get("goal", task_id)),
-                conditions=[str(c) for c in (intent_raw.get("conditions") or [])],
+                conditions=Conditions(trigger=[], decision=decision_conditions),
                 business_action=str(intent_raw.get("business_action", "")),
                 rationale=str(intent_raw.get("rationale", "")),
             )
@@ -135,7 +152,7 @@ def induce_for_task(
                 intent=intent,
                 execution=execution,
                 utility=float(p.get("utility", 0.0)),
-                source_episodes=[str(s) for s in (p.get("source_episode_ids") or [])],
+                source_episodes=src_eps,
                 confidence=confidence,  # type: ignore[arg-type]
             )
         )

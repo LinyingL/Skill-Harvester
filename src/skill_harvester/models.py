@@ -145,8 +145,70 @@ class Episode(BaseModel):
     # filled by L3 step 2
     dialogue: list[DialogueTurn] = Field(default_factory=list)
 
+    # filled by L3 step 3 (v4.1: voluntary, may stay "unknown")
+    # see design v4.1 §4.3 — step 3 与 step 2 同时呈现, 员工可跳过
+    epistemic_load: Literal["low", "medium", "high", "unknown"] = "unknown"
+
     # set to True only after both L3 steps complete
     review_complete: bool = False
+
+
+# ============================================================================
+# L4 — Conditions (v4.1: trigger / decision split, see design §4.5)
+# ============================================================================
+#
+# v4.1 关键变化: conditions 从 list[str] 拆成 trigger / decision 两段
+# - trigger: 决定规则何时被尝试匹配, 必须至少 1 个 observable=True
+# - decision: 决定 business_action 的判断条件, 可以全部 non-observable
+# 总条件数 (trigger + decision) <= 5 (MDL 上限)
+#
+# observability 是标注属性, 不是分类标签 — 同一字段在不同上下文可观测性不同。
+
+ConditionKind = Literal["observable", "declared", "organizational"]
+
+
+class TriggerCondition(BaseModel):
+    """规则的触发条件 — 必须至少 1 个 observable=True 才能被匹配。"""
+    field: str  # e.g. "active_app", "active_window_template"
+    op: Literal["equals", "contains", "matches", "less_than", "greater_than", "in"]
+    value: Any
+    observable: bool = True  # trigger 段几乎总是 True; False 则规则不可匹配 → reject
+    source: str = ""  # e.g. "window_focus", "window_title", "url_pattern"
+
+
+class DecisionCondition(BaseModel):
+    """规则的判断条件 — 可以是 observable / declared / organizational 的任意混合。
+
+    declared / organizational 必须有 source (source_dialogue 或 source_doc), 否则 reject。
+    """
+    # observable 路径
+    field: Optional[str] = None
+    op: Optional[Literal["equals", "contains", "matches", "less_than", "greater_than", "in"]] = None
+    value: Optional[Any] = None
+    unit: Optional[str] = None  # e.g. "EUR", "ms"
+
+    # 非 observable 路径
+    text: Optional[str] = None  # 自然语言描述, 当 kind != observable 时使用
+
+    observable: bool = True
+    kind: ConditionKind = "observable"
+
+    source: str = ""  # observable 时: 数据源 (e.g. "erp_dom")
+    source_dialogue: Optional[str] = None  # declared 时: 来自哪条 episode 的对话
+    source_doc: Optional[str] = None  # organizational 时: 来自哪份文档
+
+
+class Conditions(BaseModel):
+    """v4.1: trigger / decision 两段 schema。
+
+    硬约束 (由 inducer / consistency_checker 验证, models 层不强制):
+      1. trigger 段必须至少 1 个 observable=True
+      2. decision 段无 observability 要求
+      3. len(trigger) + len(decision) <= 5
+      4. declared / organizational 条件必须有 source_dialogue 或 source_doc
+    """
+    trigger: list[TriggerCondition] = Field(default_factory=list)
+    decision: list[DecisionCondition] = Field(default_factory=list)
 
 
 # ============================================================================
@@ -154,9 +216,12 @@ class Episode(BaseModel):
 # ============================================================================
 
 class ProductionIntent(BaseModel):
-    """业务规则 — 与 UI 无关, 是 L4 归纳的核心成果。"""
+    """业务规则 — 与 UI 无关, 是 L4 归纳的核心成果。
+
+    v4.1: conditions 从 list[str] 改为 Conditions (trigger/decision 两段)。
+    """
     goal: str
-    conditions: list[str]
+    conditions: Conditions
     business_action: str
     rationale: str = ""
 
@@ -177,3 +242,19 @@ class Production(BaseModel):
     utility: float = 0.0  # successes / total matches
     source_episodes: list[str] = Field(default_factory=list)
     confidence: Literal["low", "medium", "high"] = "low"
+
+    # v4.1 §4.6: 二维矩阵输出状态 (verification × epistemic)
+    # - verified_auto:           verification ok + epistemic low/medium → 自动执行
+    # - verified_reminder_only:  verification ok + epistemic high → "知道是对的, 但故意不自动化"
+    # - hypothesis:              verification low/insufficient, 或 epistemic unknown
+    # - unlabeled:               episode 的 epistemic_load 还没标 → 待回 L3 step 3
+    status: Literal[
+        "verified_auto",
+        "verified_reminder_only",
+        "hypothesis",
+        "unlabeled",
+    ] = "hypothesis"
+
+    # v4.1 §4.4: L4.5 consistency check 输出
+    # None = N < 9 透明态 (insufficient_sample, L4.5 不评分)
+    consistency_score: Optional[float] = None

@@ -48,9 +48,26 @@ def compile_skill_md(task_id: str, productions: list[Production], catalog: TaskC
     for i, p in enumerate(productions, 1):
         lines.append(f"### Rule {i}: {p.intent.business_action}")
         lines.append("")
-        lines.append("**当**:")
-        for c in p.intent.conditions:
-            lines.append(f"- {c}")
+        # v4.1: conditions split into trigger / decision (§4.5)
+        lines.append("**当 (trigger)**:")
+        if p.intent.conditions.trigger:
+            for tc in p.intent.conditions.trigger:
+                obs = "observable" if tc.observable else "non-observable"
+                lines.append(f"- `{tc.field}` {tc.op} `{tc.value}` _({obs})_")
+        else:
+            lines.append("- _(none — transitional v4.1 state)_")
+        lines.append("")
+        lines.append("**判断 (decision)**:")
+        if p.intent.conditions.decision:
+            for dc in p.intent.conditions.decision:
+                if dc.kind == "observable" and dc.field is not None:
+                    unit = f" {dc.unit}" if dc.unit else ""
+                    lines.append(f"- `{dc.field}` {dc.op} `{dc.value}{unit}`")
+                else:
+                    src = dc.source_dialogue or dc.source_doc or "?"
+                    lines.append(f"- {dc.text} _({dc.kind}, source: {src})_")
+        else:
+            lines.append("- _(none)_")
         lines.append("")
         lines.append(f"**则**: `{p.intent.business_action}`")
         if p.intent.rationale:
