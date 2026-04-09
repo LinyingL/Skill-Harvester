@@ -1,0 +1,159 @@
+# Phase 0 数据收集模板
+#
+# 这是一份**填好示例数据**的模板, 让你看到"通过的样子"。
+# 真正使用时:
+#   cp data.example.yaml data.yaml
+#   把每个 section 里的示例值替换成你 7 天内的真实观测
+#   python verify.py
+#
+# 任何一个假设没数据 → 该假设标记为 SKIP, 不计入 PASS 统计。
+
+# ============================================================================
+# A1 — 员工能写出动宾结构的日常任务清单
+# ============================================================================
+A1:
+  employee_id: emp_001
+  employee_role: customer_service_senior
+  # 员工自己写的任务清单. 必须动宾结构, 必须含 'other' 兜底。
+  tasks:
+    - { id: refund_handling,      label: 处理退款工单 }
+    - { id: shipping_inquiry,     label: 回复物流查询邮件 }
+    - { id: complaint_triage,     label: 给投诉工单分类升级 }
+    - { id: order_correction,     label: 修改订单信息 }
+    - { id: internal_coordination, label: 跟物流部协调异常订单 }
+    - { id: weekly_report,        label: 写周报 }
+    - { id: other,                label: 临时任务 / 以上都不是 }
+  # 评估者主观判断: 有多少项是空泛的 (像"维护客户关系"这种)
+  vague_count: 0
+  # 员工自评: 这份清单覆盖了一天工作的多少%
+  self_reported_coverage_percent: 85
+
+# ============================================================================
+# A2 — LLM 在小样本下做高置信度 goal 分类
+# ============================================================================
+# 收集方法: Day 2 收集 ~20 条 episode, 用真 LLM 做 goal 分类, 让员工标
+# ground truth, 把每条的 (truth, prediction, confidence) 填进来。
+A2:
+  samples:
+    - { truth: refund_handling,      prediction: refund_handling,      confidence: 0.92 }
+    - { truth: refund_handling,      prediction: refund_handling,      confidence: 0.88 }
+    - { truth: shipping_inquiry,     prediction: shipping_inquiry,     confidence: 0.95 }
+    - { truth: shipping_inquiry,     prediction: shipping_inquiry,     confidence: 0.90 }
+    - { truth: complaint_triage,     prediction: complaint_triage,     confidence: 0.86 }
+    - { truth: complaint_triage,     prediction: refund_handling,      confidence: 0.55 }
+    - { truth: order_correction,     prediction: order_correction,     confidence: 0.82 }
+    - { truth: order_correction,     prediction: order_correction,     confidence: 0.78 }
+    - { truth: internal_coordination, prediction: internal_coordination, confidence: 0.91 }
+    - { truth: internal_coordination, prediction: other,                 confidence: 0.40 }
+    - { truth: refund_handling,      prediction: refund_handling,      confidence: 0.94 }
+    - { truth: refund_handling,      prediction: refund_handling,      confidence: 0.87 }
+    - { truth: shipping_inquiry,     prediction: shipping_inquiry,     confidence: 0.93 }
+    - { truth: weekly_report,        prediction: weekly_report,        confidence: 0.96 }
+    - { truth: other,                prediction: other,                confidence: 0.70 }
+    - { truth: refund_handling,      prediction: refund_handling,      confidence: 0.89 }
+    - { truth: complaint_triage,     prediction: complaint_triage,     confidence: 0.84 }
+    - { truth: order_correction,     prediction: refund_handling,      confidence: 0.50 }
+    - { truth: shipping_inquiry,     prediction: shipping_inquiry,     confidence: 0.92 }
+    - { truth: refund_handling,      prediction: refund_handling,      confidence: 0.85 }
+  # 阈值定义"高置信度子集": confidence >= high_confidence_cutoff
+  high_confidence_cutoff: 0.80
+
+# ============================================================================
+# A3a — immediate 层 0-30s 一句话快问能拿到瞬时记忆
+# ============================================================================
+# 收集方法: Day 2 让员工在每次"困难瞬间"按一个物理按钮 (代表系统的红点
+# 触发), 立即给一句话回答. 你记录 (是否触发了, 是否回答了, 回答的信息量分)
+A3a:
+  attempts:
+    # opportunities: 系统认为可触发的次数
+    # voluntary_trigger: 员工是否真的按了
+    # info_score: 1-5 主观打分, 1=废话, 5=非常具体
+    - { opportunity_id: 1, voluntary_trigger: true,  info_score: 4 }
+    - { opportunity_id: 2, voluntary_trigger: true,  info_score: 5 }
+    - { opportunity_id: 3, voluntary_trigger: false, info_score: null }
+    - { opportunity_id: 4, voluntary_trigger: true,  info_score: 3 }
+    - { opportunity_id: 5, voluntary_trigger: false, info_score: null }
+    - { opportunity_id: 6, voluntary_trigger: true,  info_score: 4 }
+    - { opportunity_id: 7, voluntary_trigger: false, info_score: null }
+    - { opportunity_id: 8, voluntary_trigger: true,  info_score: 4 }
+    - { opportunity_id: 9, voluntary_trigger: true,  info_score: 5 }
+    - { opportunity_id: 10, voluntary_trigger: false, info_score: null }
+
+# ============================================================================
+# A3b — deferred 对比追问不依赖瞬时记忆
+# ============================================================================
+# 收集方法: Day 4 当晚, 用对比追问 (e.g. "上周那单 60€ 你直接批了, 今天 55€
+# 你升级了, 差别在哪") 跑 5-10 条, 记录信息量分和"记不清"标记。
+A3b:
+  attempts:
+    - { id: 1, info_score: 4, said_cant_recall: false }
+    - { id: 2, info_score: 5, said_cant_recall: false }
+    - { id: 3, info_score: 3, said_cant_recall: false }
+    - { id: 4, info_score: 4, said_cant_recall: false }
+    - { id: 5, info_score: 2, said_cant_recall: true }
+    - { id: 6, info_score: 4, said_cant_recall: false }
+    - { id: 7, info_score: 5, said_cant_recall: false }
+
+# ============================================================================
+# A4 — 5-10 条同类 episode 能归纳可信规则
+# ============================================================================
+# 收集方法: 你手工扮演 L4, 写出 3-5 条候选规则. Day 5 让另一名同岗位员工
+# review, 标 (是否认可, 是否能指出具体不准确点)。
+A4:
+  rules:
+    - id: rule_1
+      text: "金额 < 50EUR 且客户注册 > 6 月 且无历史争议 → 直接批准退款"
+      peer_endorsed: true
+      peer_can_critique: true   # 关键: 能指出具体不准确才说明规则是可证伪的
+    - id: rule_2
+      text: "首次客户的物流查询统一回复模板 A"
+      peer_endorsed: true
+      peer_can_critique: true
+    - id: rule_3
+      text: "投诉工单 中含 'angry' 或 '愤怒' → 升级到主管"
+      peer_endorsed: false
+      peer_can_critique: true
+
+# ============================================================================
+# A5 — 端到端 A/B: SKILL.md 让 Agent 一致率显著提升
+# ============================================================================
+# 收集方法: Day 6 准备 10 个新案例. 一个 LLM Agent 用 SKILL.md, 一个不用,
+# 都和原专家判断对比, 算各自的一致率。
+A5:
+  cases:
+    # skill_agent: 用 SKILL.md 的 agent 是否和专家一致
+    # bare_agent:  不用 SKILL.md 的 agent 是否和专家一致
+    - { id: 1,  skill_agent: true,  bare_agent: true  }
+    - { id: 2,  skill_agent: true,  bare_agent: false }
+    - { id: 3,  skill_agent: true,  bare_agent: false }
+    - { id: 4,  skill_agent: true,  bare_agent: true  }
+    - { id: 5,  skill_agent: true,  bare_agent: false }
+    - { id: 6,  skill_agent: false, bare_agent: false }
+    - { id: 7,  skill_agent: true,  bare_agent: true  }
+    - { id: 8,  skill_agent: true,  bare_agent: false }
+    - { id: 9,  skill_agent: true,  bare_agent: false }
+    - { id: 10, skill_agent: true,  bare_agent: true  }
+
+# ============================================================================
+# A6 — routine confirmation 触发器能在不打扰前提下抓到已压实产生式
+# ============================================================================
+# 收集方法: Day 3 下午让员工回看 Day 2 的工作, 标出"今天我做了 N 次几乎一样
+# 的事"的高频项. 你判断这些高频项里有没有可归纳的产生式, 让员工对每条给出
+# 规则陈述。
+A6:
+  candidates:
+    - id: cand_1
+      pattern: "ERP 中点 Refund Detail → Approve"
+      observed_count: 23
+      employee_can_state_rule: true
+      rule_text: "金额 < 50EUR 且无历史争议时直接批"
+    - id: cand_2
+      pattern: "Outlook 物流查询 → DHL Portal → 复制 tracking → 回信"
+      observed_count: 18
+      employee_can_state_rule: true
+      rule_text: "标准物流查询统一用模板, 只换 tracking 号"
+    - id: cand_3
+      pattern: "Slack #logistics → 转发卡单截图"
+      observed_count: 11
+      employee_can_state_rule: false
+      rule_text: null
