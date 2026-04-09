@@ -84,20 +84,56 @@ class EpisodeContext(BaseModel):
     recent_events: list[str] = Field(default_factory=list)
 
 
+class MetadataPoint(BaseModel):
+    """v3: 单条 long-window metadata. 无截图无像素, 仅 < 200 bytes.
+
+    用途见 design v3 §4.3.3 — 把因果窗口从 30s 扩到 15min, 让 L3 能问
+    "3 分钟前你看的那封邮件是不是和现在的判断有关"。
+    """
+    ts: datetime
+    app: str = ""
+    window_template: str = ""  # 数字/ID 已被归一化, e.g. "Re: Order #N refund"
+    url: Optional[str] = None
+    event: str = ""  # open / focus / click / pause / undo / ...
+
+
+TriggerKind = Literal["hotkey", "long_pause", "undo_burst", "routine_confirmation", "manual_enter"]
+
+
 class DialogueTurn(BaseModel):
     question: str
     answer: str
-    question_type: Literal["goal_confirm", "decision_choice", "counterfactual", "knowledge_gap", "comparison", "open"]
+    question_type: Literal[
+        "goal_confirm",
+        "decision_choice",
+        "counterfactual",
+        "knowledge_gap",
+        "comparison",
+        "rule_statement",  # v3: for routine-triggered episodes
+        "one_line_quick",  # v3: immediate-tier 一句话快问
+        "open",
+    ]
+    # v3: which L3 tier produced this turn
+    tier: Literal["immediate", "close_window", "deferred"] = "deferred"
 
 
 class Episode(BaseModel):
     """L2 output. The unit of work for the rest of the pipeline."""
     episode_id: str
     ts: datetime
-    trigger: str  # "hotkey" / "long_pause" / "undo_burst" / ...
+    trigger: str  # see TriggerKind
     duration_s: float = 0.0
     snapshot_path: Optional[str] = None
     context: EpisodeContext
+
+    # v3: long-window metadata buffer for causal-chain reconstruction (§4.3.3)
+    recent_metadata: list[MetadataPoint] = Field(default_factory=list)
+
+    # v3: filled when this episode came from L1 sensor B (frequency accumulator).
+    # routine episodes use a different L3 question template (rule-statement, not
+    # counterfactual recall). See design v3 §4.5.2.
+    routine_signature: Optional[str] = None
+    routine_observed_count: int = 0
 
     tacit_signals: TacitSignals = Field(default_factory=TacitSignals)
 
